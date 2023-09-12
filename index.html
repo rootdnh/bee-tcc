@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Frontend em Tempo Real</title>
+</head>
+<body>
+  <div id="realtime-data"></div>
+
+  <script>
+    const eventSource = new EventSource('http://localhost:3000/real-time');
+    console.log(eventSource);
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log(data);
+      const realtimeDataElement = document.getElementById('realtime-data');
+      realtimeDataElement.innerHTML = `Mensagem da API: ${data.message}`;
+    };
+  </script>
+</body>
+</html>
