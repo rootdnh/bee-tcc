@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chart.js Test</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.js"></script>
+  <style>
+    .chart-container {
+      display: flex;
+      width: 100%;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      
+    }
+
+    
+    * {
+      padding: 0;
+      margin: 0;
+      font-family: sans-serif;
+    }
+    body {
+      background-color: #eee;
+      text-align: center;
+    }
+
+    .chart {
+      width: 40%;
+      height: auto;
+      border: 1px solid black;
+      margin: 20px;
+    }
+    .chart canvas{
+      width: 100%;
+      max-height: auto; 
+    }
+    h3 {
+      padding: 30px;
+    }
+
+    @media (max-width: 600px){
+      .chart-container {
+        flex-direction: column;
+      }
+      .chart {
+      width: 90%;
+      height: auto;
+    }
+    }
+  </style>
+</head>
+<body>
+  <h3>Caixa de abelha #1</h3>
+  <div class="chart-container">
+    <div class="chart">
+      <canvas id="count"></canvas>
+    </div>
+    <div class="chart">
+      <canvas id="temperature" ></canvas>
+    </div>
+    <div class="chart">
+      <canvas id="humidity"></canvas>
+    </div>
+    <div class="chart">
+      <canvas id="weight" ></canvas>
+    </div>
+  </div>
+
+  <script>
+    const socket = io();
+
+    socket.on("connect", () => {
+      console.log("Connected");
+    });
+
+    var limitPoints = 80;
+
+    
+    const countConfig = {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Fluxo',
+          fill: true,
+          pointRadius: 1,
+          borderColor: "rgba(0,0,255,0.5)",
+          backgroundColor: "rgba(0,0,255,0.5)",
+          data: [],
+        }]
+      },
+      options: {
+        responsive: true,
+       
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    };
+    
+    const temperatureConfig = {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Temperatura',
+          fill: true,
+          pointRadius: 1,
+          borderColor: "rgba(255,0,0,0.5)",
+          backgroundColor: "rgba(255,0,0,0.5)",
+          data: [],
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    };
+    
+    const humidityConfig = {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Umidade',
+          fill: true,
+          pointRadius: 1,
+          borderColor: "rgba(0,128,0,0.5)",
+          backgroundColor: "rgba(0,128,0,0.5)",
+          data: [],
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    };
+    
+    const weightConfig = {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Peso',
+          fill: true,
+          pointRadius: 1,
+          borderColor: "rgba(128,0,128,0.5)",
+          backgroundColor: "rgba(128,0,128,0.5)",
+          data: [],
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    };
+
+    const canvaCount = new Chart(document.getElementById('count').getContext('2d'), countConfig);
+    const canvaTemperature = new Chart(document.getElementById('temperature').getContext('2d'), temperatureConfig);
+    const canvaHumidity = new Chart(document.getElementById('humidity').getContext('2d'), humidityConfig);
+    const canvaWeight = new Chart(document.getElementById('weight').getContext('2d'), weightConfig);
+
+    socket.on("data-api", (data) => {
+      const timestamp = new Date().toLocaleTimeString();
+
+      addData(canvaCount, timestamp, data.contagem);
+      addData(canvaTemperature, timestamp, data.temperatura);
+      addData(canvaHumidity, timestamp, data.umidade);
+      addData(canvaWeight, timestamp, data.peso);
+    });
+
+    function addData(chart, timestamp, value) {
+      if (chart.data.labels.length >= limitPoints) {
+        chart.data.labels.shift();
+        chart.data.datasets[0].data.shift();
+      }
+      
+      chart.data.labels.push(timestamp);
+      chart.data.datasets[0].data.push(value);
+      chart.update();
+    }
+
+
+  </script>
+</body>
+</html>

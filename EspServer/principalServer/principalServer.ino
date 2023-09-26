@@ -5,7 +5,8 @@
 const char* ssid = "";
 const char* password = "";
 const char* serverIP = "192.168.1.6";
-const int serverPort = 3000;
+const int serverPort = 3002;
+const float pesoFixo = 28.3;
 
 #define DHTPIN 4        
 #define DHTTYPE DHT11    
@@ -42,7 +43,9 @@ void loop() {
 
       String payload = "{\"contagem\":" + String(contagemDetecoes) + 
                        ",\"temperatura\":" + String(dht.readTemperature()) + 
-                       ",\"umidade\":" + String(dht.readHumidity()) + "}";
+                       ",\"umidade\":" + String(dht.readHumidity()) + 
+                       ",\"peso\":" + String(pesoFixo) + 
+                       "}";
 
       if (http.begin(client, "http://" + String(serverIP) + ":" + String(serverPort) + "/dados")) {
         http.addHeader("Content-Type", "application/json");
